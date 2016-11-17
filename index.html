@@ -143,10 +143,10 @@ d3.json("ne.json", function(error, ne) {
       .attr("d", path);
    
   //following code draws the state boundary
-  svg.append("path")
+  /*svg.append("path")
       .datum(topojson.mesh(ne, ne.objects.counties, function(a, b) { return a === b; }))
       .attr("class", "state-border")
-      .attr("d", path);
+      .attr("d", path);*/
   
   //following code draws the tract boundary
   /*svg.append("path")
