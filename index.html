@@ -39,10 +39,22 @@ svg {
 </style>
 <body>
 <h1 style = "text-align:left; color:black; font:sans-serif"><bold>Nebraska Population Density, 2016</bold></h1>
+ <!--Toggle color button-->
+    <input class="color" type="button" name="change_colors" value="Toggle Color">
+    
+    <!--Toggle show boundaries button-->
+    <input class="boundary" type="button" name="show_boundary" value="Toggle Boundary"> 
+    
+    <input class ="tractBoundary" type="button" name="show_tractBoundary" value="Toggle Tract Boundary">
+    
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script src="//d3js.org/topojson.v1.min.js"></script>
 <script>
 
+var switchColor = false;
+var showBounds = false; 
+var showTracts = false;
+    
 var width = 960,
     height = 1100;
 
@@ -62,12 +74,43 @@ var path = d3.geo.path()
 var color = d3.scale.threshold()
     .domain([1, 10, 50, 100, 500, 1000, 2000, 5000])
     .range(["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#b30000", "#7f0000"]);
-  
-//Code for different color binding and legend
-/*var color = d3.scale.threshold()
-    .domain([1, 10, 50, 100, 500, 1000, 2000, 5000])
-    .range(["#ECF7FF", "#C8E8FE", "#9ED4FD", "#84BBFD", "#598DFC", "#4865EF", "#1F30D7", "#0000B3", "#00007F"]);*/
     
+//beginning of button color change boundary show & hide   
+    d3.select("input.color").on("click", changeColor);
+    d3.select("input.boundary").on("click", toggleBounds);
+    d3.select("input.tractBoundary").on("click", toggleTracts);
+    
+//Changes color range between Red and Blue
+  function changeColor() {
+    switchColor = !switchColor;
+      
+    if (switchColor){  
+    //blue scale    
+    color = d3.scale.threshold()
+    .domain([1, 10, 50, 100, 500, 1000, 2000, 5000])
+    .range(["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b"]);
+    }
+      else {
+    //red scale      
+    color = d3.scale.threshold()
+    .domain([1, 10, 50, 100, 500, 1000, 2000, 5000])
+    .range(["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#b30000", "#7f0000"]); 
+      }
+    //redraw the map with correct color  
+    refresh();   
+  }
+   
+//Toggle showBounds boolean true or false
+function toggleBounds(){
+    showBounds = !showBounds;
+    refresh(); //refresh map
+}
+
+function toggleTracts(){
+    showTracts = !showTracts;
+    refresh();
+}
+//end of color/boundary change     
 
 // A position encoding for the key only.
 var x = d3.scale.linear()
@@ -84,11 +127,13 @@ var xAxis = d3.svg.axis()
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height - 400);
-
+    
+    refresh();
+function refresh() {
 var g = svg.append("g")
     .attr("class", "key")
     //legend placement
-    .attr("transform", "translate(200,40)");
+    .attr("transform", "translate(200,80)");
 
 g.selectAll("rect")
     .data(color.range().map(function(d, i) {
@@ -137,31 +182,43 @@ d3.json("ne.json", function(error, ne) {
     // function is called for each arc sharing adjacent polygons a and b
     // Since a and b are not identical the function returns true and the arc is drawn
     // boundary arcs are not drawn
-  svg.append("path")
+    svg.append("path")
       .datum(topojson.mesh(ne, ne.objects.counties, function(a, b) { return a !== b; }))
       .attr("class", "county-border")
       .attr("d", path);
-   
+
   //following code draws the state boundary
-  /*svg.append("path")
+ /* svg.append("path")
       .datum(topojson.mesh(ne, ne.objects.counties, function(a, b) { return a === b; }))
       .attr("class", "state-border")
-      .attr("d", path);*/
+      .attr("d", path); */
   
   //following code draws the tract boundary
   /*svg.append("path")
       .datum(topojson.mesh(ne, ne.objects.tracts, function(a, b) { return a !== b; }))
       .attr("class", "tract-border")
       .attr("d", path);*/
+    
+    if (showTracts) {
+        svg.append("path")
+            .datum(topojson.mesh(ne, ne.objects.tracts, function(a, b) { return a !== b; }))
+            .attr("class", "tract-border")
+            .attr("d", path);
+    }
+    if (showBounds) {
+        svg.append("path")
+        .datum(topojson.mesh(ne, ne.objects.counties, function(a, b) { return a === b; }))
+        .attr("class", "state-border")
+        .attr("d", path);
+    }
 });
 
+}
 d3.select(self.frameElement).style("height", height + "px");
 
 </script>
-<h2>Steven Huang<br/>
+<h4>Steven Huang<br/>
 Instructior: Suresh Lodha<br/>
 CMPS 165: Data Programming for Visualization<br/>
-Fall 2016<br/>
-<a href="https://uberboi.github.io/Nebraska-Population-Density/">Link for Visualization</a><br/>
-<a href="https://github.com/uberboi/Nebraska-Population-Density">Github Link</a></h2>
+Fall 2016</h4>
 Collaborated with Kevin Cai
